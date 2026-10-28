@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Find Pizzaro Perfect stores in Nairobi, Meru and Nakuru. Get directions or contact us about your order.">
+  <meta name="theme-color" content="#1B1464">
+  <title>Our Stores | Pizzaro Perfect Collection</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="js/theme.js?v=20261028-2"></script>
+  <link rel="stylesheet" href="css/style.css?v=20261028-10">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header class="site-header">
+    <div class="header-content">
+      <a href="index.html" class="site-title" aria-label="Pizzaro Perfect Home">
+        <img src="images/logo-light.png" data-theme-logo data-light-src="images/logo-light.png" data-dark-src="images/logo-dark.png" alt="Pizzaro Perfect Collection" width="160" height="35">
+      </a>
+      <nav id="main-navigation" aria-label="Main navigation">
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="inventory.html" class="nav-link">Shop</a></li>
+          <li><a href="location.html" class="nav-link" aria-current="page">Stores</a></li>
+          <li><a href="" id="header-whatsapp" class="btn btn-primary nav-contact" target="_blank" rel="noopener noreferrer">WhatsApp us</a></li>
+        </ul>
+      </nav>
+      <div class="header-tools">
+        <button type="button" class="cart-toggle" id="cart-toggle" aria-label="Open cart">
+          <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/></svg>
+          <span>Cart</span><span id="cart-count" aria-live="polite">0</span>
+        </button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false" title="Switch to dark theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.5A8.5 8.5 0 0 1 8.5 3.6a8.6 8.6 0 1 0 11.9 11.9Z"/></svg>
+        </button>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="main-navigation" aria-label="Toggle navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="page-header">
+      <div class="container">
+        <p class="hero-eyebrow">Pizzaro Perfect Collection</p>
+        <h1>Our stores</h1>
+        <p>Visit us in Nairobi, Meru or Nakuru. Select “Get directions” to open a map.</p>
+      </div>
+    </section>
+
+    <section class="location-section" aria-labelledby="locations-title">
+      <div class="container">
+        <header class="section-header section-header-row">
+          <div>
+            <p class="hero-eyebrow">Locations</p>
+            <h2 id="locations-title" class="section-title">Store addresses</h2>
+          </div>
+        </header>
+        <div class="branch-grid branch-grid-full" id="store-list"></div>
+      </div>
+    </section>
+
+    <section class="delivery-strip delivery-strip-section" aria-label="Delivery">
+      <div class="container">
+        <p><strong>Order from anywhere in Kenya</strong><span>Delivery is available countrywide</span></p>
+        <div class="contact-quick">
+          <a href="" data-business-phone></a>
+          <a href="" data-business-email></a>
+          <a href="" id="location-whatsapp" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Ask us on WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h2 data-business-name>Pizzaro Perfect Collection</h2>
+          <p data-business-tagline></p>
+          <p data-delivery-summary></p>
+        </div>
+        <div class="footer-section">
+          <h2>Contact</h2>
+          <p><a href="" data-business-phone></a></p>
+          <p><a href="" data-business-email></a></p>
+          <p><a href="" data-contact-whatsapp target="_blank" rel="noopener noreferrer">WhatsApp us</a></p>
+        </div>
+        <div class="footer-section">
+          <h2>Explore</h2>
+          <p><a href="inventory.html">Shop all</a></p>
+          <p><a href="location.html">Our stores</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span data-current-year></span> Pizzaro Perfect Collection. All rights reserved.</p>
+        <p class="designer-credit">Designed by Alpha Design Labs</p>
+      </div>
+    </div>
+  </footer>
+  <script src="js/config.js"></script>
+  <script src="js/inventory.js?v=20261028-2"></script>
+  <script src="js/app.js?v=20261028-6"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>

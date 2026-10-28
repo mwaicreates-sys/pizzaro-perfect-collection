@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="700" viewBox="0 0 700 700" role="img" aria-labelledby="title description">
+  <title id="title">Pizzaro Perfect clothing collection</title>
+  <desc id="description">Editorial collection graphic listing polo shirts, football jerseys, T-shirts and sleeveless T-shirts. Product photography is not yet available.</desc>
+  <rect width="700" height="700" fill="#F6F5F8"/>
+  <rect width="12" height="700" fill="#D3145A"/>
+  <text x="58" y="82" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="700" letter-spacing="3">PIZZARO PERFECT COLLECTION</text>
+  <text x="58" y="198" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="700" letter-spacing="-4">TEAM</text>
+  <text x="58" y="274" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="700" letter-spacing="-4">GEAR.</text>
+  <text x="58" y="350" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="700" letter-spacing="-4">EVERYDAY WEAR.</text>
+  <line x1="58" y1="390" x2="640" y2="390" stroke="#1B1464" stroke-opacity=".22"/>
+  <text x="58" y="444" fill="#D3145A" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">01</text>
+  <text x="110" y="444" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600">Polo shirts</text>
+  <text x="355" y="444" fill="#D3145A" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">02</text>
+  <text x="407" y="444" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600">Football jerseys</text>
+  <line x1="58" y1="468" x2="640" y2="468" stroke="#1B1464" stroke-opacity=".12"/>
+  <text x="58" y="524" fill="#D3145A" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">03</text>
+  <text x="110" y="524" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600">T-shirts</text>
+  <text x="355" y="524" fill="#D3145A" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="700" letter-spacing="2">04</text>
+  <text x="407" y="524" fill="#1B1464" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="600">Sleeveless</text>
+  <text x="58" y="641" fill="#696878" font-family="Arial, Helvetica, sans-serif" font-size="13" letter-spacing=".5">Product photography coming soon</text>
+</svg>

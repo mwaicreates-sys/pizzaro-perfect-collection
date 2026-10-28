@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shop Pizzaro Perfect polo shirts and football jerseys. Order on WhatsApp with countrywide delivery.">
+  <meta name="theme-color" content="#1B1464">
+  <title>Pizzaro Perfect Collection | Clothing & Jerseys</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="js/theme.js?v=20261028-2"></script>
+  <link rel="stylesheet" href="css/style.css?v=20261028-10">
+  <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+  <header class="site-header">
+    <div class="header-content">
+      <a href="index.html" class="site-title" aria-label="Pizzaro Perfect Home">
+        <img src="images/logo-light.png" data-theme-logo data-light-src="images/logo-light.png" data-dark-src="images/logo-dark.png" alt="Pizzaro Perfect Collection" width="160" height="35">
+      </a>
+      <nav id="main-navigation" aria-label="Main navigation">
+        <ul class="nav-menu">
+          <li><a href="index.html" class="nav-link" aria-current="page">Home</a></li>
+          <li><a href="inventory.html" class="nav-link">Shop</a></li>
+          <li><a href="location.html" class="nav-link">Stores</a></li>
+          <li><a href="" id="header-whatsapp" class="btn btn-primary nav-contact" target="_blank" rel="noopener noreferrer">WhatsApp us</a></li>
+        </ul>
+      </nav>
+      <div class="header-tools">
+        <button type="button" class="cart-toggle" id="cart-toggle" aria-label="Open cart">
+          <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/></svg>
+          <span>Cart</span><span id="cart-count" aria-live="polite">0</span>
+        </button>
+        <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark theme" aria-pressed="false" title="Switch to dark theme">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.4 15.5A8.5 8.5 0 0 1 8.5 3.6a8.6 8.6 0 1 0 11.9 11.9Z"/></svg>
+        </button>
+        <button class="nav-toggle" aria-expanded="false" aria-controls="main-navigation" aria-label="Toggle navigation menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main-content">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <p class="hero-eyebrow">Pizzaro Perfect Collection</p>
+          <h1 id="hero-title" class="hero-title">Polo shirts, football jerseys and more.</h1>
+          <p class="hero-subtitle">Explore our polo shirts and football jerseys.</p>
+          <div class="hero-actions">
+            <a href="inventory.html?category=polo" class="btn btn-primary">Shop polos</a>
+            <a href="inventory.html?category=football" class="btn btn-outline">Shop jerseys</a>
+            <a href="inventory.html" class="hero-all-products">View all products</a>
+          </div>
+          <p class="hero-delivery">Delivery is countrywide</p>
+        </div>
+        <div class="hero-carousel" data-home-carousel aria-label="Featured products">
+          <div class="hero-carousel-window">
+            <div class="hero-carousel-track" data-carousel-track></div>
+          </div>
+          <div class="hero-carousel-controls">
+            <div class="hero-carousel-dots" data-carousel-dots aria-label="Choose a featured product"></div>
+            <div class="hero-carousel-arrows">
+              <button type="button" data-carousel-prev aria-label="Previous featured product">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              </button>
+              <button type="button" data-carousel-next aria-label="Next featured product">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="featured-collection" aria-labelledby="featured-title">
+      <div class="container">
+        <header class="section-header section-header-row">
+          <div>
+            <p class="hero-eyebrow">Products</p>
+            <h2 id="featured-title" class="section-title">Shop products</h2>
+            <p class="section-subtitle">Choose a product to see its details and sizes.</p>
+          </div>
+          <a href="inventory.html" class="text-link">View all products <span aria-hidden="true">→</span></a>
+        </header>
+        <nav class="category-links" aria-label="Shop by category">
+          <a href="inventory.html?category=polo">Polo shirts <span aria-hidden="true">↗</span></a>
+          <a href="inventory.html?category=football">Football jerseys <span aria-hidden="true">↗</span></a>
+          <a href="inventory.html?category=t-shirt">T-shirts <span aria-hidden="true">↗</span></a>
+          <a href="inventory.html?category=caps">Caps <span aria-hidden="true">↗</span></a>
+          <a href="inventory.html?category=vest">Safety vests <span aria-hidden="true">↗</span></a>
+        </nav>
+        <div class="product-grid" id="featured-products" role="list" aria-label="Featured products"></div>
+      </div>
+    </section>
+
+    <section class="custom-order-section" aria-labelledby="custom-order-title">
+      <div class="container custom-order-content">
+        <div>
+          <p class="hero-eyebrow">Football jerseys</p>
+          <h2 id="custom-order-title" class="section-title">Custom branding</h2>
+          <p>Add a name, number or logo to a jersey.</p>
+        </div>
+        <a href="inventory.html?category=football" class="btn btn-primary">Shop jerseys</a>
+      </div>
+    </section>
+
+    <section class="delivery-strip" aria-label="Delivery">
+      <div class="container">
+        <p><strong>Delivery countrywide</strong><span>Order from anywhere in Kenya</span></p>
+        <a href="location.html">View our stores <span aria-hidden="true">→</span></a>
+      </div>
+    </section>
+
+    <section class="branch-preview" aria-labelledby="branch-preview-title">
+      <div class="container">
+        <header class="section-header section-header-row">
+          <div>
+            <p class="hero-eyebrow">Locations</p>
+            <h2 id="branch-preview-title" class="section-title">Our stores</h2>
+          </div>
+          <a href="location.html" class="text-link">All stores <span aria-hidden="true">→</span></a>
+        </header>
+        <div class="branch-grid" id="branch-preview-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h2 data-business-name>Pizzaro Perfect Collection</h2>
+          <p data-business-tagline></p>
+          <p data-delivery-summary></p>
+        </div>
+        <div class="footer-section">
+          <h2>Contact</h2>
+          <p><a href="" data-business-phone></a></p>
+          <p><a href="" data-business-email></a></p>
+          <p><a href="" data-contact-whatsapp target="_blank" rel="noopener noreferrer">WhatsApp us</a></p>
+        </div>
+        <div class="footer-section">
+          <h2>Explore</h2>
+          <p><a href="inventory.html">Shop all</a></p>
+          <p><a href="location.html">Our stores</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; <span data-current-year></span> Pizzaro Perfect Collection. All rights reserved.</p>
+        <p class="designer-credit">Designed by Alpha Design Labs</p>
+      </div>
+    </div>
+  </footer>
+  <script src="js/config.js"></script>
+  <script src="js/inventory.js?v=20261028-2"></script>
+  <script src="js/app.js?v=20261028-6"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>
