@@ -10,7 +10,7 @@ const INVENTORY = [
     details: 'A clean white polo finished with a dark green striped collar and matching sleeve cuffs. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-white-green-trim.png'],
+    images: ['images/products/polo-white-green-trim.jpg'],
     availableSizes: POLO_SIZES,
     featured: true
   },
@@ -22,7 +22,7 @@ const INVENTORY = [
     details: 'A bright yellow polo with contrasting black stripes at the collar and sleeve cuffs. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-yellow-black-trim.png'],
+    images: ['images/products/polo-yellow-black-trim.jpg'],
     availableSizes: POLO_SIZES,
     featured: true
   },
@@ -34,7 +34,7 @@ const INVENTORY = [
     details: 'A deep green polo with a classic collar, button placket and embroidered chest emblem. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-forest-green.png'],
+    images: ['images/products/polo-forest-green.jpg'],
     availableSizes: POLO_SIZES,
     featured: false
   },
@@ -46,7 +46,7 @@ const INVENTORY = [
     details: 'A versatile navy blue polo with a classic collar and understated button placket. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-navy.png'],
+    images: ['images/products/polo-navy.jpg'],
     availableSizes: POLO_SIZES,
     featured: false
   },
@@ -58,7 +58,7 @@ const INVENTORY = [
     details: 'A soft blue short-sleeve polo shirt with a classic collar and button placket. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-blue.png'],
+    images: ['images/products/polo-blue.jpg'],
     availableSizes: POLO_SIZES,
     featured: false
   },
@@ -70,7 +70,7 @@ const INVENTORY = [
     details: 'A neutral beige short-sleeve polo with a classic collar and button placket. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-beige.png'],
+    images: ['images/products/polo-beige.jpg'],
     availableSizes: POLO_SIZES,
     featured: false
   },
@@ -82,7 +82,7 @@ const INVENTORY = [
     details: 'A classic white short-sleeve polo with a neat collar and button placket. Available in adult sizes S–XXL.',
     price: 500,
     priceVerified: true,
-    images: ['images/products/polo-white-classic.png'],
+    images: ['images/products/polo-white-classic.jpg'],
     availableSizes: POLO_SIZES,
     featured: false
   },
@@ -94,7 +94,7 @@ const INVENTORY = [
     details: 'A clean white baseball cap with a curved brim and adjustable-style back. Ask us to confirm fit and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/cap-white.png'],
+    images: ['images/products/cap-white.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -106,7 +106,7 @@ const INVENTORY = [
     details: 'A classic black baseball cap with a curved brim and adjustable-style back. Ask us to confirm fit and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/cap-black.png'],
+    images: ['images/products/cap-black.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -118,7 +118,7 @@ const INVENTORY = [
     details: 'A fluorescent yellow high-visibility vest featuring two reflective bands and dark edging. Ask us to confirm available sizes and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/vest-reflective-yellow.png'],
+    images: ['images/products/vest-reflective-yellow.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -130,7 +130,7 @@ const INVENTORY = [
     details: 'A beige short-sleeve crew-neck T-shirt with a clean, minimal finish. Ask us to confirm available sizes and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/tshirt-beige.png'],
+    images: ['images/products/tshirt-beige.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -142,7 +142,7 @@ const INVENTORY = [
     details: 'A white short-sleeve crew-neck T-shirt with a clean, minimal finish. Ask us to confirm available sizes and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/tshirt-white.png'],
+    images: ['images/products/tshirt-white.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -154,7 +154,7 @@ const INVENTORY = [
     details: 'A light grey short-sleeve crew-neck T-shirt with a simple, versatile style. Ask us to confirm available sizes and price.',
     price: null,
     priceVerified: false,
-    images: ['images/products/tshirt-grey.png'],
+    images: ['images/products/tshirt-grey.jpg'],
     availableSizes: [],
     featured: false
   },
@@ -166,7 +166,7 @@ const INVENTORY = [
     details: 'A white home jersey with red shoulder stripes, dark trim and team crest. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-real-madrid-home.png'],
+    images: ['images/products/jersey-real-madrid-home.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: true
   },
@@ -178,7 +178,7 @@ const INVENTORY = [
     details: 'A royal blue jersey with yellow accents and club detailing. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-chelsea-blue.png'],
+    images: ['images/products/jersey-chelsea-blue.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: true
   },
@@ -190,7 +190,7 @@ const INVENTORY = [
     details: 'A red home jersey with white shoulder panels and club detailing. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-manchester-united-home.png'],
+    images: ['images/products/jersey-manchester-united-home.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: false
   }

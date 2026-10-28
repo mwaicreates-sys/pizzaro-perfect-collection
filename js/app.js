@@ -546,6 +546,9 @@
     const selectedCategory = getCategories().includes(requestedCategory) ? requestedCategory : 'all';
     const title = document.getElementById('inventory-title');
     const intro = document.getElementById('inventory-intro');
+    const loading = document.getElementById('catalogue-loading');
+    const status = document.getElementById('catalogue-status');
+    let filterTimer;
 
     function updateCategoryHeading(categoryId) {
       const isAll = categoryId === 'all';
@@ -566,12 +569,20 @@
     function applyFilters() {
       const query = searchInput.value;
       updateCategoryHeading(selectedCategory);
-      const filtered = query.trim()
-        ? searchProducts(query)
-        : getProductsByCategory(selectedCategory);
-      renderProducts(filtered, '#product-grid');
-      const status = document.getElementById('catalogue-status');
-      if (status) status.textContent = `${filtered.length} ${filtered.length === 1 ? 'style' : 'styles'} shown`;
+      if (loading) loading.hidden = false;
+      productGrid.hidden = true;
+      productGrid.setAttribute('aria-busy', 'true');
+      window.clearTimeout(filterTimer);
+      filterTimer = window.setTimeout(() => {
+        const filtered = query.trim()
+          ? searchProducts(query)
+          : getProductsByCategory(selectedCategory);
+        renderProducts(filtered, '#product-grid');
+        if (status) status.textContent = `${filtered.length} ${filtered.length === 1 ? 'style' : 'styles'} shown`;
+        productGrid.hidden = false;
+        productGrid.setAttribute('aria-busy', 'false');
+        if (loading) loading.hidden = true;
+      }, 80);
     }
     searchInput.addEventListener('input', applyFilters);
     categoryLinks.forEach(link => {
