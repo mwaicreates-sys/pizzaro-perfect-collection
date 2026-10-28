@@ -105,8 +105,9 @@
         image.alt = '';
         image.width = 80;
         image.height = 96;
-        image.loading = 'lazy';
+        image.loading = index < 3 ? 'eager' : 'lazy';
         image.decoding = 'async';
+        if (index === 0) image.fetchPriority = 'high';
         const details = document.createElement('div');
         details.className = 'cart-line-details';
         const name = document.createElement('h3');
