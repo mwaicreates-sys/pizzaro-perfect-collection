@@ -489,3 +489,22 @@ h3 { margin-bottom: var(--space-1); }
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
 }
+.image-loading-status {
+  position: absolute; inset: 0; z-index: 4; display: grid; align-content: center;
+  justify-items: center; gap: 8px; color: var(--color-link);
+  background: linear-gradient(110deg, var(--color-soft-white) 25%, var(--color-surface) 45%, var(--color-soft-white) 65%);
+  background-size: 220% 100%; animation: image-loading-shimmer 1.5s ease-in-out infinite;
+  font-size: .72rem; font-weight: 600; letter-spacing: .02em; pointer-events: none;
+}
+.image-loading-status--error { background: var(--color-soft-white); animation: none; }
+.image-loading-brand { color: var(--color-magenta); font-size: .66rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+.image-loading-spinner {
+  width: 26px; height: 26px; border: 2px solid var(--color-border);
+  border-top-color: var(--color-magenta); border-radius: 50%;
+  animation: image-loading-spin .75s linear infinite;
+}
+@keyframes image-loading-shimmer { to { background-position: -220% 0; } }
+@keyframes image-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .image-loading-status, .image-loading-spinner { animation: none; }
+}

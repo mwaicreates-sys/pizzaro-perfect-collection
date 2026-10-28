@@ -165,7 +165,44 @@
     return wrapper;
   }
 
-  function createProductCard(product) {
+  function addImageLoadingState(image, frame) {
+    const status = document.createElement('span');
+    status.className = 'image-loading-status';
+    status.setAttribute('aria-hidden', 'true');
+    status.innerHTML = '<span class="image-loading-spinner"></span><span class="image-loading-brand">Pizzaro Perfect</span><span>Loading image</span>';
+    frame.classList.add('is-image-loading');
+    frame.appendChild(status);
+
+    function finishLoading() {
+      frame.classList.remove('is-image-loading');
+      status.remove();
+    }
+
+    image.addEventListener('load', finishLoading, { once: true });
+    image.addEventListener('error', () => {
+      if (image.dataset.fallbackApplied !== 'true') {
+        image.dataset.fallbackApplied = 'true';
+        image.src = 'images/placeholder.svg';
+        return;
+      }
+      frame.classList.remove('is-image-loading');
+      status.classList.add('image-loading-status--error');
+      status.replaceChildren();
+      const brand = document.createElement('span');
+      brand.className = 'image-loading-brand';
+      brand.textContent = 'Pizzaro Perfect';
+      const message = document.createElement('span');
+      message.textContent = 'Image unavailable';
+      status.append(brand, message);
+    });
+
+    if (image.complete) {
+      if (image.naturalWidth > 0) finishLoading();
+      else image.dispatchEvent(new Event('error'));
+    }
+  }
+
+  function createProductCard(product, prioritizeImage = false) {
     const article = document.createElement('article');
     article.className = 'product-card';
     article.dataset.productId = product.id;
@@ -181,9 +218,12 @@
     const image = document.createElement('img');
     image.src = getProductImage(product);
     image.alt = product.name;
-    image.loading = 'lazy';
+    image.loading = prioritizeImage ? 'eager' : 'lazy';
+    image.decoding = 'async';
+    if (prioritizeImage) image.fetchPriority = 'high';
     image.width = 400;
     image.height = 500;
+    addImageLoadingState(image, imageFrame);
     imageLink.appendChild(image);
     imageFrame.appendChild(imageLink);
     addOfferSticker(imageFrame, product);
@@ -273,6 +313,8 @@
     image.width = 700;
     image.height = 875;
     image.fetchPriority = 'high';
+    image.decoding = 'async';
+    addImageLoadingState(image, imageFrame);
     imageFrame.appendChild(image);
     if (product.category === 'football') {
       const overlay = document.createElement('div');
@@ -393,7 +435,9 @@
       container.appendChild(empty);
       return;
     }
-    products.forEach(product => container.appendChild(createProductCard(product)));
+    products.forEach((product, index) => {
+      container.appendChild(createProductCard(product, index < 3));
+    });
   }
 
   function initNavigation() {
@@ -564,6 +608,8 @@
       image.width = 700;
       image.height = 700;
       if (track.childElementCount === 0) image.fetchPriority = 'high';
+      image.decoding = 'async';
+      addImageLoadingState(image, figure);
       figure.appendChild(image);
 
       const caption = document.createElement('figcaption');
