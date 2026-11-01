@@ -31,6 +31,44 @@ const CONFIG = {
   delivery: {
     countrywide: true
   },
+  promotions: [
+    {
+      eyebrow: 'Selected jersey offer',
+      title: 'Now KSh 1,600 · Was KSh 1,900',
+      description: 'Save 16% on three selected home jerseys. Confirm availability with our team.',
+      image: 'images/jersey campaign.jpg',
+      imageAlt: 'Arsenal and Chelsea football shirts from the jersey campaign',
+      href: 'inventory.html?category=football',
+      action: 'Shop the offer'
+    },
+    {
+      eyebrow: 'Adult polos',
+      title: 'Everyday polos from KSh 500',
+      description: 'Explore the adult polo selection in a range of colours.',
+      image: 'images/polo campaign.jpg',
+      imageAlt: 'Colourful polo shirts from the polo campaign',
+      href: 'inventory.html?category=polo',
+      action: 'Shop polo shirts'
+    },
+    {
+      eyebrow: 'Everyday T-shirts',
+      title: 'Find your everyday colour',
+      description: 'Browse simple tees for everyday wear.',
+      image: 'images/tshirt campaign.jpg',
+      imageAlt: 'A selection of T-shirts in different colours',
+      href: 'inventory.html?category=t-shirt',
+      action: 'Shop T-shirts'
+    },
+    {
+      eyebrow: 'T-shirt collection',
+      title: 'Easy everyday essentials',
+      description: 'Explore the T-shirt collection.',
+      image: 'images/tshirt alternaive campaign.jpg',
+      imageAlt: 'Close-up of colourful T-shirts',
+      href: 'inventory.html?category=t-shirt',
+      action: 'Shop T-shirts'
+    }
+  ],
   social: {
     instagram: null,
     facebook: null,

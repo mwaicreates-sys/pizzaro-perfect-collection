@@ -9,26 +9,33 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="js/theme.js?v=20261028-2"></script>
-  <link rel="stylesheet" href="css/style.css?v=20261028-12">
+  <script src="js/theme.js?v=20261102-10"></script>
+  <link rel="stylesheet" href="css/style.css?v=20261102-16">
   <link rel="icon" type="image/svg+xml" href="images/favicon.svg">
 </head>
-<body>
+<body class="inventory-page">
   <a href="#main-content" class="skip-link">Skip to main content</a>
   <header class="site-header">
     <div class="header-content">
       <a href="index.html" class="site-title" aria-label="Pizzaro Perfect Home">
         <img src="images/logo-light.png" data-theme-logo data-light-src="images/logo-light.png" data-dark-src="images/logo-dark.png" alt="Pizzaro Perfect Collection" width="160" height="35">
       </a>
+      <form class="header-search" data-global-search role="search">
+        <label class="header-search-field"><span class="sr-only">Search the collection</span><input type="search" name="q" placeholder="Search jerseys, polos..." autocomplete="off"></label>
+        <button type="submit" aria-label="Search products"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button>
+      </form>
       <nav id="main-navigation" aria-label="Main navigation">
         <ul class="nav-menu">
+          <li class="mobile-nav-search"><form class="header-search" data-global-search role="search"><label class="header-search-field"><span class="sr-only">Search the collection</span><input type="search" name="q" placeholder="Search jerseys, polos..." autocomplete="off"></label><button type="submit" aria-label="Search products"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg></button></form></li>
           <li><a href="index.html" class="nav-link">Home</a></li>
           <li><a href="inventory.html" class="nav-link" aria-current="page">Shop</a></li>
           <li><a href="location.html" class="nav-link">Stores</a></li>
-          <li><a href="" id="header-whatsapp" class="btn btn-primary nav-contact" target="_blank" rel="noopener noreferrer">WhatsApp us</a></li>
         </ul>
       </nav>
       <div class="header-tools">
+        <a class="wishlist-header" href="wishlist.html" aria-label="Open wishlist">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 20-1.4-1.3C5.6 14.2 2.5 11.4 2.5 8a4.8 4.8 0 0 1 8.2-3.4L12 5.9l1.3-1.3A4.8 4.8 0 0 1 21.5 8c0 3.4-3.1 6.2-8.1 10.7L12 20Z"/></svg><span>Saved</span><span class="wishlist-count" data-wishlist-count hidden>0</span>
+        </a>
         <a class="cart-toggle" id="cart-toggle" href="cart.html" aria-label="Open cart">
           <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/></svg>
           <span>Cart</span><span id="cart-count" aria-live="polite">0</span>
@@ -66,6 +73,17 @@
         <div class="inventory-filters" role="search" aria-label="Product filters">
           <label class="sr-only" for="product-search">Search products</label>
           <input type="search" id="product-search" placeholder="Search all products (e.g. Arsenal)" autocomplete="off">
+          <label class="size-filter-label" for="size-filter">Size or age
+            <select id="size-filter" aria-label="Filter by size or age">
+              <option value="">All sizes</option>
+              <option value="S">S</option><option value="M">M</option><option value="L">L</option>
+              <option value="XL">XL</option><option value="XXL">XXL</option><option value="One size">One size</option>
+              <option value="2-3 years">2-3 years</option><option value="4-5 years">4-5 years</option>
+              <option value="6-7 years">6-7 years</option><option value="8-9 years">8-9 years</option>
+              <option value="10-11 years">10-11 years</option><option value="12-13 years">12-13 years</option>
+            </select>
+          </label>
+          <button type="button" class="btn btn-outline clear-filters" id="clear-filters">Clear filters</button>
         </div>
         <p class="catalogue-status" id="catalogue-status" aria-live="polite"></p>
         <div class="catalogue-loading" id="catalogue-loading" role="status" aria-live="polite">
@@ -77,16 +95,6 @@
       </div>
     </section>
 
-    <section class="custom-order-section">
-      <div class="container custom-order-content">
-        <div>
-          <p class="hero-eyebrow">Football jerseys</p>
-          <h2 class="section-title">Custom branding</h2>
-          <p>Add a name, number or logo to a jersey.</p>
-        </div>
-        <a href="inventory.html?category=football" class="btn btn-primary">Shop jerseys</a>
-      </div>
-    </section>
   </main>
 
   <footer class="site-footer">
@@ -106,6 +114,7 @@
         <div class="footer-section">
           <h2>Explore</h2>
           <p><a href="inventory.html">Shop all</a></p>
+          <p><a href="wishlist.html">Wishlist</a></p>
           <p><a href="location.html">Our stores</a></p>
         </div>
       </div>
@@ -115,9 +124,9 @@
       </div>
     </div>
   </footer>
-  <script src="js/config.js"></script>
-  <script src="js/inventory.js?v=20261028-3"></script>
-  <script src="js/app.js?v=20261028-8"></script>
-  <script src="js/cart.js?v=20261028-2"></script>
+  <script src="js/config.js?v=20261102-10"></script>
+  <script src="js/inventory.js?v=20261102-13"></script>
+  <script src="js/app.js?v=20261102-12"></script>
+  <script src="js/cart.js?v=20261102-13"></script>
 </body>
 </html>

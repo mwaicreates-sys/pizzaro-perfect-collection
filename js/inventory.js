@@ -1,5 +1,8 @@
 const POLO_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 const JERSEY_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+const APPAREL_SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
+const CAP_SIZES = ['One size'];
+const KIDS_AGES = ['2-3 years', '4-5 years', '6-7 years', '8-9 years', '10-11 years', '12-13 years'];
 
 const INVENTORY = [
   {
@@ -95,7 +98,7 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/cap-white.jpg'],
-    availableSizes: [],
+    availableSizes: CAP_SIZES,
     featured: false
   },
   {
@@ -107,7 +110,7 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/cap-black.jpg'],
-    availableSizes: [],
+    availableSizes: CAP_SIZES,
     featured: false
   },
   {
@@ -119,7 +122,7 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/vest-reflective-yellow.jpg'],
-    availableSizes: [],
+    availableSizes: APPAREL_SIZES,
     featured: false
   },
   {
@@ -131,7 +134,7 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/tshirt-beige.jpg'],
-    availableSizes: [],
+    availableSizes: APPAREL_SIZES,
     featured: false
   },
   {
@@ -143,7 +146,7 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/tshirt-white.jpg'],
-    availableSizes: [],
+    availableSizes: APPAREL_SIZES,
     featured: false
   },
   {
@@ -155,46 +158,159 @@ const INVENTORY = [
     price: null,
     priceVerified: false,
     images: ['images/products/tshirt-grey.jpg'],
-    availableSizes: [],
+    availableSizes: APPAREL_SIZES,
     featured: false
   },
   {
     id: 'jersey-real-madrid-home',
     name: 'Real Madrid Home Football Jersey',
+    team: 'Real Madrid',
     category: 'football',
     description: 'White Real Madrid home jersey with dark contrasting trim and red shoulder stripes.',
     details: 'A white home jersey with red shoulder stripes, dark trim and team crest. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-real-madrid-home.jpg'],
+    originalPrice: 1900,
+    images: ['images/catalog/real-madrid-home-shirt.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: true
   },
   {
     id: 'jersey-chelsea-home',
-    name: 'Chelsea Blue Football Jersey',
+    name: 'Chelsea Home Football Jersey',
+    team: 'Chelsea',
     category: 'football',
     description: 'Royal blue Chelsea-style jersey with yellow accents and club detailing.',
     details: 'A royal blue jersey with yellow accents and club detailing. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-chelsea-blue.jpg'],
+    originalPrice: 1900,
+    images: ['images/catalog/chelsea-home-shirt.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: true
   },
   {
     id: 'jersey-manchester-united-home',
     name: 'Manchester United Home Football Jersey',
+    team: 'Manchester United',
     category: 'football',
     description: 'Red Manchester United home jersey with white shoulder panels and club detailing.',
     details: 'A red home jersey with white shoulder panels and club detailing. Available in sizes S–XXL.',
     price: 1600,
     priceVerified: true,
-    images: ['images/products/jersey-manchester-united-home.jpg'],
+    originalPrice: 1900,
+    images: ['images/catalog/manchester-united-home.jpg'],
     availableSizes: JERSEY_SIZES,
     featured: false
   }
 ];
+
+INVENTORY.filter(product => product.category === 'football').forEach(product => {
+  const baseName = product.name.replace(/ Football Jersey$/, ' Jersey');
+  product.name = `${baseName} (Player Version)`;
+  product.description = product.name;
+  product.variantLabel = 'Size';
+  product.price = 1600;
+  product.priceVerified = true;
+  product.availableSizes = JERSEY_SIZES;
+  product.version = 'Player';
+  product.details = `${product.name}. Choose a size before ordering.`;
+  INVENTORY.push({
+    ...product,
+    id: `${product.id}-fan`,
+    name: `${baseName} (Fan Version)`,
+    description: `${baseName} (Fan Version)`,
+    details: `${baseName} fan version. Choose a size before ordering.`,
+    price: 1300,
+    originalPrice: undefined,
+    version: 'Fan',
+    featured: false,
+    newArrival: false
+  });
+});
+
+const SUPPLIED_PRODUCTS = [
+  ['arsenal-3rd-shirt', 'Arsenal 3rd Shirt', 'football', 'images/catalog/arsenal-3rd-shirt.jpg', { team: 'Arsenal' }],
+  ['arsenal-away-long-sleeves', 'Arsenal Away Long-Sleeve Jersey', 'football', 'images/catalog/arsenal-away-long-sleeves.jpg', { team: 'Arsenal', price: 2000, priceVerified: true }],
+  ['arsenal-away', 'Arsenal Away Jersey', 'football', 'images/catalog/arsenal-away.jpg', { team: 'Arsenal' }],
+  ['arsenal-home-kids-kit', 'Arsenal Home Kids Kit', 'football', 'images/catalog/arsenal-home-kids-kit.jpg', { team: 'Arsenal', price: 1200, priceVerified: true, variantLabel: 'Age', availableSizes: KIDS_AGES, details: 'Arsenal home kids kit. Choose the child’s age to select a size.' }],
+  ['arsenal-home-long-sleeves', 'Arsenal Home Long-Sleeve Jersey', 'football', 'images/catalog/arsenal-home-long-sleeves.jpg', { team: 'Arsenal', price: 2000, priceVerified: true }],
+  ['arsenal-home', 'Arsenal Home Jersey', 'football', 'images/catalog/arsenal-home.jpg', { team: 'Arsenal' }],
+  ['barcelona-away', 'Barcelona Away Jersey', 'football', 'images/catalog/barcelona-away.jpg', { team: 'Barcelona' }],
+  ['chelsea-away', 'Chelsea Away Jersey', 'football', 'images/catalog/chelsea-away-shirt.jpg', { team: 'Chelsea' }],
+  ['chelsea-home-world-champions', 'Chelsea Home Jersey with FIFA CWC Badge', 'football', 'images/catalog/chelsea-home-shirt-fifa-cwc-badge.jpg', { team: 'Chelsea' }],
+  ['chelsea-third', 'Chelsea Third Kit', 'football', 'images/catalog/chelsea-third-kit.jpg', { team: 'Chelsea' }],
+  ['liverpool-away', 'Liverpool Away Jersey', 'football', 'images/catalog/liverpool-away-shirt.jpg', { team: 'Liverpool' }],
+  ['liverpool-baby-kit', 'Liverpool Kids Kit', 'football', 'images/catalog/liverpool-baby-kit.jpg', { team: 'Liverpool', price: 1200, priceVerified: true, variantLabel: 'Age', availableSizes: KIDS_AGES, details: 'Liverpool kids kit. Choose the child’s age to select a size.' }],
+  ['liverpool-home', 'Liverpool Home Jersey', 'football', 'images/catalog/liverpool-home-shirt.jpg', { team: 'Liverpool' }],
+  ['manchester-city-away', 'Manchester City Away Jersey', 'football', 'images/catalog/manchester-city-away.jpg', { team: 'Manchester City' }],
+  ['manchester-city-home', 'Manchester City Home Jersey', 'football', 'images/catalog/manchester-city-home.jpg', { team: 'Manchester City' }],
+  ['manchester-united-3rd-long-sleeves', 'Manchester United 3rd Long-Sleeve Jersey', 'football', 'images/catalog/manchester-united-3rd-kit-long-sleeves.jpg', { team: 'Manchester United', price: 2000, priceVerified: true }],
+  ['manchester-united-3rd', 'Manchester United 3rd Kit', 'football', 'images/catalog/manchester-united-3rd-kit.jpg', { team: 'Manchester United' }],
+  ['manchester-united-away-long-sleeves', 'Manchester United Away Long-Sleeve Jersey', 'football', 'images/catalog/manchester-united-away-long-sleeves.jpg', { team: 'Manchester United', price: 2000, priceVerified: true }],
+  ['manchester-united-away', 'Manchester United Away Jersey', 'football', 'images/catalog/manchester-united-away-shirt.jpg', { team: 'Manchester United' }],
+  ['manchester-united-home-kids-kit', 'Manchester United Home Kids Kit', 'football', 'images/catalog/manchester-united-home-kids-kit.jpg', { team: 'Manchester United', price: 1200, priceVerified: true, variantLabel: 'Age', availableSizes: KIDS_AGES, details: 'Manchester United home kids kit. Choose the child’s age to select a size.' }],
+  ['manchester-united-home-long-sleeves', 'Manchester United Home Long-Sleeve Jersey', 'football', 'images/catalog/manchester-united-home-long-sleeves.jpg', { team: 'Manchester United', price: 2000, priceVerified: true }],
+  ['polo-plain-beige', 'Plain Beige Polo', 'polo', 'images/catalog/plain-beige-polo.jpg'],
+  ['polo-plain-black', 'Plain Black Polo', 'polo', 'images/catalog/plain-black-polo.jpg'],
+  ['polo-plain-green', 'Plain Green Polo', 'polo', 'images/catalog/plain-green-polo.jpg'],
+  ['polo-plain-grey', 'Plain Grey Polo', 'polo', 'images/catalog/plain-grey-polo.jpg'],
+  ['polo-plain-orange', 'Plain Orange Polo', 'polo', 'images/catalog/plain-orange-polo.jpg'],
+  ['polo-plain-red', 'Plain Red Polo', 'polo', 'images/catalog/plain-red-polo.jpg'],
+  ['polo-plain-white-basic', 'Plain White Polo', 'polo', 'images/catalog/plain-white-polo.jpg'],
+  ['polo-plain-yellow', 'Plain Yellow Polo', 'polo', 'images/catalog/plain-yellow-polo.jpg'],
+  ['cap-blue', 'Blue Baseball Cap', 'caps', 'images/catalog/blue-cap.jpg'],
+  ['cap-pink', 'Pink Baseball Cap', 'caps', 'images/catalog/pink-cap.jpg'],
+  ['cap-red', 'Red Baseball Cap', 'caps', 'images/catalog/red-cap.jpg'],
+  ['tshirt-black', 'Black Crew-Neck T-shirt', 't-shirt', 'images/catalog/black-tshirt.jpg'],
+  ['tshirt-light-grey', 'Light Grey Crew-Neck T-shirt', 't-shirt', 'images/catalog/grey-tshirt-2.jpg']
+];
+
+SUPPLIED_PRODUCTS.forEach(([id, name, category, image, details = {}]) => {
+  const isPolo = category === 'polo';
+  const isKidsKit = details.variantLabel === 'Age';
+  const isLongSleeve = /long-sleeve/i.test(name);
+  const isShortSleeveJersey = category === 'football' && !isKidsKit && !isLongSleeve;
+  const price = isPolo ? 500 : isShortSleeveJersey ? 1600 : details.price ?? null;
+  const priceVerified = isPolo || isShortSleeveJersey || details.priceVerified === true;
+  const productName = isShortSleeveJersey ? `${name} (Player Version)` : name;
+  const productSizes = details.availableSizes ||
+    (category === 'football' ? JERSEY_SIZES : category === 'caps' ? CAP_SIZES : APPAREL_SIZES);
+  const productDetails = {
+    ...details,
+    variantLabel: details.variantLabel || 'Size',
+    availableSizes: productSizes
+  };
+  INVENTORY.push({
+    id,
+    name: productName,
+    category,
+    description: productName,
+    details: details.details || `${productName}. ${priceVerified ? `Listed at KSh ${price.toLocaleString()}.` : 'Contact us to confirm available sizes and price.'}`,
+    price,
+    priceVerified,
+    images: [image],
+    availableSizes: productSizes,
+    featured: false,
+    newArrival: ['arsenal-home', 'manchester-city-home', 'polo-plain-orange', 'cap-red', 'tshirt-black'].includes(id),
+    ...productDetails,
+    ...(isShortSleeveJersey ? { version: 'Player' } : {})
+  });
+  if (isShortSleeveJersey) {
+    INVENTORY.push({
+      ...INVENTORY[INVENTORY.length - 1],
+      id: `${id}-fan`,
+      name: `${name} (Fan Version)`,
+      description: `${name} (Fan Version)`,
+      details: `${name} fan version. Choose a size before ordering.`,
+      price: 1300,
+      originalPrice: undefined,
+      version: 'Fan',
+      featured: false,
+      newArrival: false
+    });
+  }
+});
 
 const PRODUCT_CATEGORIES = [
   { id: 'polo', label: 'Polo shirts' },
@@ -237,9 +353,19 @@ function searchProducts(query) {
   }
   const lowerQuery = query.toLowerCase().trim();
   return INVENTORY.filter(product => {
-    const searchableText = [product.name, getCategoryLabel(product.category)].join(' ').toLowerCase();
+    const searchableText = [
+      product.name,
+      product.team,
+      product.category,
+      getCategoryLabel(product.category),
+      ...(product.tags || [])
+    ].filter(Boolean).join(' ').toLowerCase();
     return searchableText.includes(lowerQuery);
   });
+}
+
+function getNewArrivals() {
+  return INVENTORY.filter(product => product.newArrival);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -249,6 +375,7 @@ if (typeof module !== 'undefined' && module.exports) {
     getProducts,
     getProductById,
     getFeaturedProducts,
+    getNewArrivals,
     getProductsByCategory,
     getCategories,
     getCategoryLabel,

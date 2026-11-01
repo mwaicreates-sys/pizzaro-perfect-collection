@@ -2,6 +2,7 @@
   'use strict';
 
   const WISHLIST_STORAGE_KEY = 'pizzaro-perfect-wishlist-v1';
+  const RECENTLY_VIEWED_KEY = 'pizzaro-perfect-recently-viewed-v1';
   let wishlistIds = [];
   let wishlistStorageAvailable = true;
 
@@ -39,11 +40,31 @@
       button.title = saved ? 'Remove from wishlist' : 'Add to wishlist';
       button.classList.toggle('is-saved', saved);
     });
+    document.querySelectorAll('[data-wishlist-count]').forEach(count => {
+      count.textContent = String(wishlistIds.length);
+      count.hidden = wishlistIds.length === 0;
+    });
+  }
+
+  function toggleWishlist(productId) {
+    if (!getProductById(productId)) return;
+    wishlistIds = wishlistIds.includes(productId)
+      ? wishlistIds.filter(id => id !== productId)
+      : [...wishlistIds, productId];
+    saveWishlist();
+    updateWishlistButtons();
+    document.dispatchEvent(new CustomEvent('pizzaro:wishlist-change'));
   }
 
   wishlistIds = loadWishlist();
   window.addEventListener('storage', event => {
-    if (event.key !== WISHLIST_STORAGE_KEY || event.newValue === null) return;
+    if (event.key !== WISHLIST_STORAGE_KEY) return;
+    if (event.newValue === null) {
+      wishlistIds = [];
+      updateWishlistButtons();
+      document.dispatchEvent(new CustomEvent('pizzaro:wishlist-change'));
+      return;
+    }
     try {
       const parsed = JSON.parse(event.newValue);
       if (!Array.isArray(parsed)) throw new TypeError('Updated wishlist data is not a list.');
@@ -51,6 +72,7 @@
         typeof id === 'string' && getProductById(id)
       ))];
       updateWishlistButtons();
+      document.dispatchEvent(new CustomEvent('pizzaro:wishlist-change'));
     } catch (error) {
       console.error('Unable to sync the saved wishlist:', error);
     }
@@ -59,12 +81,7 @@
   document.addEventListener('click', event => {
     const button = event.target.closest('[data-wishlist-toggle]');
     if (!button) return;
-    const productId = button.dataset.wishlistToggle;
-    wishlistIds = wishlistIds.includes(productId)
-      ? wishlistIds.filter(id => id !== productId)
-      : [...wishlistIds, productId];
-    saveWishlist();
-    updateWishlistButtons();
+    toggleWishlist(button.dataset.wishlistToggle);
   });
 
   function generateWhatsAppLink(message) {
@@ -73,19 +90,17 @@
 
   function generateProductWhatsAppMessage(product, variants, customisation) {
     const price = product.priceVerified && Number.isFinite(product.price)
-      ? ` The listed price is KES ${product.price.toLocaleString()}.`
-      : ' Please share the current price.';
-    const selected = variants ? [variants.size && `Size: ${variants.size}`].filter(Boolean) : [];
-    const options = selected.length ? ` My selected options: ${selected.join(', ')}.` : '';
-    const custom = customisation
-      ? [
-          customisation.name && `Name: ${customisation.name}`,
-          customisation.number && `Number: ${customisation.number}`,
-          customisation.artwork && `Artwork file: ${customisation.artwork}`
-        ].filter(Boolean)
-      : [];
-    const customRequest = custom.length ? ` Custom branding: ${custom.join(', ')}.` : '';
-    return `Hi ${CONFIG.brand.name}, I'm interested in ${product.name}.${price}${options}${customRequest} Please confirm the size and price.${customisation?.artwork ? ' I will send the logo separately.' : ''}`;
+      ? `Listed price: KES ${product.price.toLocaleString()}.`
+      : 'Please share the current price.';
+    const optionLabel = product.variantLabel || 'Size';
+    const lines = [`Hi ${CONFIG.brand.name}, I'm interested in ${product.name}:`];
+    if (variants?.size) lines.push(`- ${optionLabel}: ${variants.size}`);
+    lines.push(`- ${price}`);
+    if (customisation?.name) lines.push(`- Name: ${customisation.name}`);
+    if (customisation?.number) lines.push(`- Number: ${customisation.number}`);
+    if (customisation?.artwork) lines.push(`- Artwork: ${customisation.artwork} (I will send the file separately)`);
+    lines.push(`Please confirm availability and ${optionLabel.toLowerCase()}.`);
+    return lines.join('\n');
   }
 
   function getWhatsAppLinkForProduct(product, variants, customisation) {
@@ -227,6 +242,12 @@
     imageLink.appendChild(image);
     imageFrame.appendChild(imageLink);
     addOfferSticker(imageFrame, product);
+    if (product.newArrival && !getProductOffer(product)) {
+      const newLabel = document.createElement('span');
+      newLabel.className = 'product-new-label';
+      newLabel.textContent = 'New';
+      imageFrame.appendChild(newLabel);
+    }
     const wishlistButton = document.createElement('button');
     wishlistButton.type = 'button';
     wishlistButton.className = 'wishlist-toggle';
@@ -237,7 +258,7 @@
     wishlistButton.setAttribute('aria-label', `${savedToWishlist ? 'Remove' : 'Add'} ${product.name} ${savedToWishlist ? 'from' : 'to'} wishlist`);
     wishlistButton.title = savedToWishlist ? 'Remove from wishlist' : 'Add to wishlist';
     wishlistButton.classList.toggle('is-saved', savedToWishlist);
-    wishlistButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 5.5 6.1.9-4.4 4.3 1 6.1-5.4-2.9-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z"/></svg>';
+    wishlistButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.8a5.2 5.2 0 0 0-7.4 0L12 6.2l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4l1.4 1.4L12 21l7.4-7.4 1.4-1.4a5.2 5.2 0 0 0 0-7.4Z"/></svg>';
     imageFrame.appendChild(wishlistButton);
     if (product.imageNote) {
       const note = document.createElement('figcaption');
@@ -256,9 +277,7 @@
 
     const info = document.createElement('div');
     info.className = 'product-info';
-    const category = getCategoryLabel(product.category);
     info.innerHTML = `
-      <p class="product-category">${category}</p>
       <h3 class="product-name"><a></a></h3>
       <div class="product-meta"><p class="product-price">${formatPrice(product)}</p></div>
       <div class="product-action"></div>
@@ -267,11 +286,16 @@
     titleLink.href = productUrl;
     titleLink.textContent = product.name;
     const action = info.querySelector('.product-action');
-    const sizeSelect = makeVariantSelect(product, 'size', 'Size', product.availableSizes);
-    if (sizeSelect) action.appendChild(sizeSelect);
     const feedback = document.createElement('p');
     feedback.className = 'product-feedback';
     feedback.setAttribute('aria-live', 'polite');
+    const variantSelect = makeVariantSelect(
+      product,
+      'size',
+      product.variantLabel || 'Size',
+      product.availableSizes
+    );
+    if (variantSelect) action.appendChild(variantSelect);
     action.appendChild(feedback);
     const actionButtons = document.createElement('div');
     actionButtons.className = 'product-card-actions';
@@ -303,6 +327,7 @@
     }
 
     document.title = `${product.name} | Pizzaro Perfect`;
+    rememberProduct(product.id);
     const breadcrumb = document.getElementById('breadcrumb-product');
     if (breadcrumb) breadcrumb.textContent = product.name;
     const imageFrame = document.createElement('figure');
@@ -316,37 +341,13 @@
     image.decoding = 'async';
     addImageLoadingState(image, imageFrame);
     imageFrame.appendChild(image);
-    if (product.category === 'football') {
-      const overlay = document.createElement('div');
-      overlay.className = 'jersey-photo-customisation';
-      overlay.setAttribute('aria-hidden', 'true');
-      const nameOverlay = document.createElement('span');
-      nameOverlay.className = 'jersey-photo-name';
-      nameOverlay.dataset.customPreviewName = '';
-      const numberOverlay = document.createElement('span');
-      numberOverlay.className = 'jersey-photo-number';
-      numberOverlay.dataset.customPreviewNumber = '';
-      const artworkOverlay = document.createElement('img');
-      artworkOverlay.className = 'jersey-photo-artwork';
-      artworkOverlay.dataset.customPreviewArtwork = '';
-      artworkOverlay.alt = '';
-      artworkOverlay.hidden = true;
-      overlay.append(nameOverlay, numberOverlay, artworkOverlay);
-      imageFrame.appendChild(overlay);
-    }
-    if (product.imageNote) {
-      const caption = document.createElement('figcaption');
-      caption.textContent = product.imageNote;
-      if (product.imageCreditUrl) {
-        const credit = document.createElement('a');
-        credit.href = product.imageCreditUrl;
-        credit.target = '_blank';
-        credit.rel = 'noopener noreferrer';
-        credit.textContent = 'Photo source';
-        caption.append(' · ', credit);
-      }
-      imageFrame.appendChild(caption);
-    }
+    const zoomButton = document.createElement('button');
+    zoomButton.type = 'button';
+    zoomButton.className = 'image-zoom-button';
+    zoomButton.dataset.imageZoom = '';
+    zoomButton.setAttribute('aria-label', `Enlarge image of ${product.name}`);
+    zoomButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5M10.8 7.8v6m-3-3h6"/></svg>';
+    imageFrame.appendChild(zoomButton);
 
     const info = document.createElement('div');
     info.className = 'product-detail-info';
@@ -355,46 +356,29 @@
     eyebrow.textContent = getCategoryLabel(product.category);
     const title = document.createElement('h1');
     title.textContent = product.name;
+    const team = document.createElement('p');
+    team.className = 'product-detail-team';
+    team.textContent = product.team || getCategoryLabel(product.category);
     addOfferSticker(imageFrame, product);
     const price = document.createElement('p');
     price.className = 'product-detail-price';
     price.innerHTML = formatPrice(product);
     const description = document.createElement('p');
     description.className = 'product-detail-description';
-    description.textContent = product.details || product.description || 'Ask us about this product.';
+    description.textContent = product.details || product.description || 'Contact us for product details.';
     const variants = document.createElement('div');
     variants.className = 'product-detail-variants';
-    const sizeSelect = makeVariantSelect(product, 'size', 'Size', product.availableSizes);
+    const sizeSelect = makeVariantSelect(product, 'size', product.variantLabel || 'Size', product.availableSizes);
     if (sizeSelect) variants.appendChild(sizeSelect);
     if (variants.childElementCount === 0) {
       const optionsNote = document.createElement('p');
       optionsNote.className = 'detail-options-note';
-      optionsNote.textContent = 'Ask us for the sizes and price.';
+      optionsNote.textContent = 'Contact us to confirm available sizes.';
       variants.appendChild(optionsNote);
     }
-
-    let customiser = null;
-    if (product.category === 'football') {
-      customiser = document.createElement('section');
-      customiser.className = 'jersey-customizer';
-      customiser.dataset.jerseyCustomizer = '';
-      customiser.setAttribute('aria-labelledby', 'jersey-customizer-title');
-      customiser.innerHTML = `
-        <h2 id="jersey-customizer-title">Custom branding</h2>
-        <p>Add a name, number or logo.</p>
-        <label for="custom-jersey-name">Name on jersey
-          <input id="custom-jersey-name" type="text" maxlength="16" autocomplete="off" data-custom-name>
-        </label>
-        <label for="custom-jersey-number">Number
-          <input id="custom-jersey-number" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]{0,2}" data-custom-number>
-        </label>
-        <label for="custom-jersey-artwork">Logo file (optional)
-          <input id="custom-jersey-artwork" type="file" accept="image/png,image/jpeg,image/webp" data-custom-artwork>
-        </label>
-        <p class="customizer-note" data-customizer-status aria-live="polite">Send the logo separately on WhatsApp.</p>
-        <a class="btn btn-outline custom-jersey-enquiry" href="" target="_blank" rel="noopener noreferrer">Ask about branding</a>
-      `;
-    }
+    const availability = document.createElement('p');
+    availability.className = 'product-detail-availability';
+    availability.textContent = 'Availability: please confirm with us.';
 
     const feedback = document.createElement('p');
     feedback.className = 'product-feedback';
@@ -405,23 +389,65 @@
     addButton.type = 'button';
     addButton.className = 'btn btn-primary add-to-cart';
     addButton.dataset.addToCart = product.id;
-    addButton.textContent = 'Add to cart';
+    addButton.innerHTML = '<svg class="add-to-cart-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.2 11.1a2 2 0 0 0 2 1.6h8.2a2 2 0 0 0 2-1.6L21 8H6"/><circle cx="10" cy="20" r="1.25"/><circle cx="18" cy="20" r="1.25"/></svg><span>Add to cart</span>';
+    const quantity = document.createElement('label');
+    quantity.className = 'quantity-field';
+    quantity.textContent = 'Quantity';
+    const quantityInput = document.createElement('input');
+    quantityInput.type = 'number';
+    quantityInput.min = '1';
+    quantityInput.max = '99';
+    quantityInput.value = '1';
+    quantityInput.dataset.quantity = '';
+    quantityInput.setAttribute('aria-label', `Quantity for ${product.name}`);
+    quantity.appendChild(quantityInput);
+    const wishlistButton = document.createElement('button');
+    wishlistButton.type = 'button';
+    wishlistButton.className = 'btn btn-outline detail-wishlist';
+    wishlistButton.dataset.wishlistToggle = product.id;
+    wishlistButton.dataset.productName = product.name;
+    wishlistButton.setAttribute('aria-pressed', String(wishlistIds.includes(product.id)));
+    wishlistButton.setAttribute('aria-label', `${wishlistIds.includes(product.id) ? 'Remove' : 'Add'} ${product.name} ${wishlistIds.includes(product.id) ? 'from' : 'to'} wishlist`);
+    wishlistButton.title = wishlistIds.includes(product.id) ? 'Remove from wishlist' : 'Add to wishlist';
+    wishlistButton.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 20-1.4-1.3C5.6 14.2 2.5 11.4 2.5 8a4.8 4.8 0 0 1 8.2-3.4L12 5.9l1.3-1.3A4.8 4.8 0 0 1 21.5 8c0 3.4-3.1 6.2-8.1 10.7L12 20Z"/></svg>';
+    const shareButton = document.createElement('button');
+    shareButton.type = 'button';
+    shareButton.className = 'btn btn-outline product-share';
+    shareButton.dataset.shareProduct = '';
+    shareButton.textContent = 'Share product';
+    const shareStatus = document.createElement('p');
+    shareStatus.className = 'product-share-status';
+    shareStatus.setAttribute('aria-live', 'polite');
     const enquiry = createWhatsAppButton(product, 'Ask about this product', 'product-detail-enquiry');
+    enquiry.dataset.productEnquiry = '';
+    enquiry.href = '#';
+    enquiry.setAttribute('aria-disabled', 'true');
+    enquiry.classList.add('is-disabled');
+    enquiry.addEventListener('click', event => {
+      if (enquiry.getAttribute('aria-disabled') === 'true') event.preventDefault();
+    });
     variants.querySelectorAll('[data-variant]').forEach(select => {
       select.addEventListener('change', () => {
         const selected = {};
         variants.querySelectorAll('[data-variant]').forEach(option => {
           selected[option.dataset.variant] = option.value;
         });
-        enquiry.href = getWhatsAppLinkForProduct(product, selected);
+        const hasRequiredSelection = !product.availableSizes?.length || Boolean(selected.size);
+        enquiry.href = hasRequiredSelection ? getWhatsAppLinkForProduct(product, selected) : '#';
+        enquiry.setAttribute('aria-disabled', String(!hasRequiredSelection));
+        enquiry.classList.toggle('is-disabled', !hasRequiredSelection);
       });
     });
-    actions.append(addButton, enquiry);
-    info.append(eyebrow, title, price, variants, description);
-    if (customiser) info.appendChild(customiser);
-    info.append(feedback, actions);
+    actions.append(quantity, addButton, wishlistButton, shareButton, enquiry);
+    info.append(eyebrow, title, team, price, variants, availability, description);
+    info.append(feedback, shareStatus, actions);
     container.dataset.productId = product.id;
     container.append(imageFrame, info);
+    renderProducts(
+      getProductsByCategory(product.category).filter(candidate => candidate.id !== product.id).slice(0, 4),
+      '#related-products'
+    );
+    renderRecentlyViewedSection('#recently-viewed', '.product-detail-section ~ .recently-viewed-section', product.id);
   }
 
   function renderProducts(products, containerSelector) {
@@ -436,8 +462,9 @@
       return;
     }
     products.forEach((product, index) => {
-      container.appendChild(createProductCard(product, index < 3));
+      container.appendChild(createProductCard(product, containerSelector === '#product-grid' && index < 4));
     });
+    updateWishlistButtons();
   }
 
   function initNavigation() {
@@ -527,6 +554,143 @@
     return card;
   }
 
+  function rememberProduct(productId) {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+      const previous = Array.isArray(saved)
+        ? saved.filter(id => typeof id === 'string' && getProductById(id) && id !== productId)
+        : [];
+      localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify([productId, ...previous].slice(0, 8)));
+    } catch (error) {
+      console.error('Unable to update recently viewed products:', error);
+    }
+  }
+
+  function getRecentlyViewed(excludeId = '') {
+    try {
+      const saved = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+      if (!Array.isArray(saved)) throw new TypeError('Recently viewed data is not a list.');
+      return saved
+        .filter(id => typeof id === 'string' && id !== excludeId)
+        .map(getProductById)
+        .filter(Boolean)
+        .slice(0, 4);
+    } catch (error) {
+      console.error('Unable to read recently viewed products:', error);
+      return [];
+    }
+  }
+
+  function createCategoryCard(category) {
+    const link = document.createElement('a');
+    link.className = 'category-card';
+    link.href = `inventory.html?category=${encodeURIComponent(category.id)}`;
+    const products = getProductsByCategory(category.id);
+    const categoryImageIds = {
+      polo: 'polo-plain-white',
+      football: 'jersey-real-madrid-home',
+      't-shirt': 'tshirt-white',
+      caps: 'cap-white',
+      vest: 'vest-reflective-yellow'
+    };
+    const imageProduct = getProductById(categoryImageIds[category.id]) || products[0];
+    const frame = document.createElement('span');
+    frame.className = 'category-card-image';
+    const image = document.createElement('img');
+    image.src = getProductImage(imageProduct);
+    image.alt = '';
+    image.loading = 'lazy';
+    image.decoding = 'async';
+    image.width = 145;
+    image.height = 145;
+    frame.appendChild(image);
+    link.appendChild(frame);
+    const label = document.createElement('span');
+    label.textContent = category.label;
+    link.appendChild(label);
+    return link;
+  }
+
+  function renderCategories() {
+    const container = document.getElementById('home-categories');
+    if (!container) return;
+    const availableCategories = PRODUCT_CATEGORIES.filter(category =>
+      getProductsByCategory(category.id).length > 0
+    );
+    container.replaceChildren(...availableCategories.map(createCategoryCard));
+  }
+
+  function initGlobalSearch() {
+    document.querySelectorAll('[data-global-search]').forEach(form => {
+      const input = form.querySelector('input[type="search"]');
+      form.addEventListener('submit', event => {
+        event.preventDefault();
+        const query = input?.value.trim();
+        const target = new URL('inventory.html', window.location.href);
+        if (query) target.searchParams.set('q', query);
+        window.location.href = target.href;
+      });
+    });
+  }
+
+  function initImageLightbox() {
+    document.addEventListener('click', event => {
+      const trigger = event.target.closest('[data-image-zoom]');
+      if (!trigger) return;
+      const image = trigger.closest('.product-detail-image')?.querySelector('img');
+      if (!image) return;
+      const dialog = document.createElement('dialog');
+      dialog.className = 'image-lightbox';
+      const close = document.createElement('button');
+      close.type = 'button';
+      close.className = 'image-lightbox-close';
+      close.textContent = 'Close';
+      close.addEventListener('click', () => dialog.close());
+      const enlarged = document.createElement('img');
+      enlarged.src = image.currentSrc || image.src;
+      enlarged.alt = image.alt;
+      dialog.append(close, enlarged);
+      document.body.appendChild(dialog);
+      dialog.addEventListener('click', click => {
+        if (click.target === dialog) dialog.close();
+      });
+      dialog.addEventListener('close', () => dialog.remove(), { once: true });
+      dialog.showModal();
+    });
+  }
+
+  function initProductSharing() {
+    document.addEventListener('click', async event => {
+      const button = event.target.closest('[data-share-product]');
+      if (!button) return;
+      const product = getProductById(document.getElementById('product-detail')?.dataset.productId);
+      const status = document.querySelector('.product-share-status');
+      if (!product || !status) return;
+      const shareData = {
+        title: product.name,
+        text: `${product.name} — ${CONFIG.brand.name}`,
+        url: window.location.href
+      };
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          status.textContent = 'Product shared.';
+          return;
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+          console.error('Unable to share this product:', error);
+        }
+      }
+      try {
+        await navigator.clipboard.writeText(shareData.url);
+        status.textContent = 'Product link copied.';
+      } catch (error) {
+        console.error('Unable to copy the product link:', error);
+        status.textContent = 'Copy this product link from your browser address bar.';
+      }
+    });
+  }
+
   function initBranches() {
     ['branch-preview-list', 'store-list'].forEach(id => {
       const container = document.getElementById(id);
@@ -543,7 +707,11 @@
 
     const requestedCategory = new URLSearchParams(window.location.search).get('category');
     const categoryLinks = document.querySelectorAll('[data-inventory-category]');
-    const selectedCategory = getCategories().includes(requestedCategory) ? requestedCategory : 'all';
+    let selectedCategory = getCategories().includes(requestedCategory) ? requestedCategory : 'all';
+    const initialQuery = new URLSearchParams(window.location.search).get('q') || '';
+    searchInput.value = initialQuery;
+    const sizeFilter = document.getElementById('size-filter');
+    const clearFilters = document.getElementById('clear-filters');
     const title = document.getElementById('inventory-title');
     const intro = document.getElementById('inventory-intro');
     const loading = document.getElementById('catalogue-loading');
@@ -574,9 +742,12 @@
       productGrid.setAttribute('aria-busy', 'true');
       window.clearTimeout(filterTimer);
       filterTimer = window.setTimeout(() => {
-        const filtered = query.trim()
+        let filtered = query.trim()
           ? searchProducts(query)
           : getProductsByCategory(selectedCategory);
+        if (sizeFilter?.value) {
+          filtered = filtered.filter(product => product.availableSizes?.includes(sizeFilter.value));
+        }
         renderProducts(filtered, '#product-grid');
         if (status) status.textContent = `${filtered.length} ${filtered.length === 1 ? 'style' : 'styles'} shown`;
         productGrid.hidden = false;
@@ -585,6 +756,14 @@
       }, 80);
     }
     searchInput.addEventListener('input', applyFilters);
+    sizeFilter?.addEventListener('change', applyFilters);
+    clearFilters?.addEventListener('click', () => {
+      searchInput.value = '';
+      if (sizeFilter) sizeFilter.value = '';
+      selectedCategory = 'all';
+      window.history.replaceState(null, '', 'inventory.html');
+      applyFilters();
+    });
     categoryLinks.forEach(link => {
       if (link.dataset.inventoryCategory === selectedCategory) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -593,8 +772,34 @@
   }
 
   function initHomePage() {
-    renderProducts(getFeaturedProducts(), '#featured-products');
+    renderCategories();
+    renderProducts(getNewArrivals().slice(0, 5), '#new-arrivals');
+    renderProducts(getFeaturedProducts().slice(0, 5), '#featured-products');
+    renderRecentlyViewedSection('#home-recently-viewed', '#home-recently-viewed-section');
     initHomeCarousel();
+  }
+
+  function renderRecentlyViewedSection(containerSelector, sectionSelector, excludeId = '') {
+    const products = getRecentlyViewed(excludeId);
+    const section = document.querySelector(sectionSelector);
+    if (section) section.hidden = products.length === 0;
+    renderProducts(products, containerSelector);
+  }
+
+  function initWishlistPage() {
+    const container = document.getElementById('wishlist-products');
+    const empty = document.getElementById('wishlist-empty');
+    if (!container || !empty) return;
+
+    function renderWishlist() {
+      const products = wishlistIds.map(getProductById).filter(Boolean);
+      empty.hidden = products.length > 0;
+      container.hidden = products.length === 0;
+      renderProducts(products, '#wishlist-products');
+    }
+
+    document.addEventListener('pizzaro:wishlist-change', renderWishlist);
+    renderWishlist();
   }
 
   function initHomeCarousel() {
@@ -605,39 +810,38 @@
     const next = carousel?.querySelector('[data-carousel-next]');
     if (!carousel || !track || !dots || !previous || !next) return;
 
-    const products = getFeaturedProducts().slice(0, 5);
-    const slides = products.map(product => {
-      const category = product.category;
-
+    const promotions = CONFIG.promotions || [];
+    const slides = promotions.slice(0, 5).map((promotion, index) => {
       const slide = document.createElement('article');
       slide.className = 'hero-carousel-slide';
       const figure = document.createElement('figure');
       figure.className = 'hero-image';
       const image = document.createElement('img');
-      image.src = getProductImage(product);
-      image.alt = product.name;
+      image.src = promotion.image;
+      image.alt = promotion.imageAlt || '';
       image.width = 700;
       image.height = 700;
-      if (track.childElementCount === 0) image.fetchPriority = 'high';
+      if (index === 0) image.fetchPriority = 'high';
       image.decoding = 'async';
       addImageLoadingState(image, figure);
       figure.appendChild(image);
 
       const caption = document.createElement('figcaption');
-      caption.className = 'hero-image-caption';
-      const categoryLabel = document.createElement('span');
-      categoryLabel.className = 'hero-image-category';
-      categoryLabel.textContent = getCategoryLabel(category);
-      const productName = document.createElement('span');
-      productName.className = 'hero-image-name';
-      productName.textContent = product.name;
-      caption.append(categoryLabel, productName);
-      if (product.imageNote) {
-        const note = document.createElement('span');
-        note.className = 'hero-image-note';
-        note.textContent = product.imageNote;
-        caption.appendChild(note);
-      }
+      caption.className = 'hero-image-caption hero-promo-copy';
+      const eyebrow = document.createElement('span');
+      eyebrow.className = 'hero-image-category';
+      eyebrow.textContent = promotion.eyebrow;
+      const heading = document.createElement('span');
+      heading.className = 'hero-image-name';
+      heading.textContent = promotion.title;
+      const description = document.createElement('span');
+      description.className = 'hero-image-note';
+      description.textContent = promotion.description;
+      const action = document.createElement('a');
+      action.className = 'btn btn-primary hero-promo-action';
+      action.href = promotion.href;
+      action.textContent = promotion.action;
+      caption.append(eyebrow, heading, description, action);
       figure.appendChild(caption);
       slide.appendChild(figure);
       track.appendChild(slide);
@@ -645,17 +849,22 @@
       const dot = document.createElement('button');
       dot.type = 'button';
       dot.className = 'hero-carousel-dot';
-      dot.setAttribute('aria-label', `Show ${product.name}`);
-      dot.addEventListener('click', () => showSlide(products.indexOf(product)));
+      dot.setAttribute('aria-label', `Show promotion: ${promotion.title}`);
+      dot.addEventListener('click', () => {
+        showSlide(index);
+        syncAutoplay();
+      });
       dots.appendChild(dot);
       return slide;
-    }).filter(Boolean);
+    });
     if (slides.length < 2) return;
 
     let activeIndex = 0;
     let autoplay;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     const indicators = [...dots.querySelectorAll('button')];
+    let pointerInside = false;
+    let keyboardInside = false;
 
     function showSlide(index) {
       activeIndex = (index + slides.length) % slides.length;
@@ -673,39 +882,48 @@
       autoplay = undefined;
     }
 
-    function startAutoplay() {
+    function syncAutoplay() {
       stopAutoplay();
-      if (reducedMotion.matches) return;
-      autoplay = window.setInterval(() => showSlide(activeIndex + 1), 5500);
+      if (reducedMotion.matches || pointerInside || keyboardInside || document.hidden) return;
+      autoplay = window.setInterval(() => showSlide(activeIndex + 1), 7000);
     }
 
     previous.addEventListener('click', () => {
       showSlide(activeIndex - 1);
-      startAutoplay();
+      syncAutoplay();
     });
     next.addEventListener('click', () => {
       showSlide(activeIndex + 1);
-      startAutoplay();
+      syncAutoplay();
     });
-    carousel.addEventListener('pointerenter', stopAutoplay);
-    carousel.addEventListener('pointerleave', startAutoplay);
-    carousel.addEventListener('focusin', stopAutoplay);
+    carousel.addEventListener('pointerenter', () => { pointerInside = true; syncAutoplay(); });
+    carousel.addEventListener('pointerleave', () => { pointerInside = false; syncAutoplay(); });
+    carousel.addEventListener('focusin', () => { keyboardInside = true; syncAutoplay(); });
     carousel.addEventListener('focusout', event => {
-      if (!carousel.contains(event.relatedTarget)) startAutoplay();
+      if (!carousel.contains(event.relatedTarget)) {
+        keyboardInside = false;
+        syncAutoplay();
+      }
     });
-    reducedMotion.addEventListener('change', startAutoplay);
+    reducedMotion.addEventListener('change', syncAutoplay);
+    document.addEventListener('visibilitychange', syncAutoplay);
 
     showSlide(0);
-    startAutoplay();
+    syncAutoplay();
   }
 
   function init() {
     initNavigation();
     initSharedContent();
     initBranches();
+    initGlobalSearch();
+    initImageLightbox();
+    initProductSharing();
+    updateWishlistButtons();
     const path = window.location.pathname;
     if (path.includes('inventory.html') || path.endsWith('inventory')) initInventoryPage();
     else if (path.includes('product.html') || path.endsWith('product')) initProductPage();
+    else if (path.includes('wishlist.html') || path.endsWith('wishlist')) initWishlistPage();
     else if (path.includes('index.html') || path.endsWith('/')) initHomePage();
   }
 
@@ -725,10 +943,17 @@
     getProducts,
     getProductById,
     getFeaturedProducts,
+    getNewArrivals,
     getProductsByCategory,
     getCategories,
     getCategoryLabel,
     searchProducts,
-    getProductOffer
+    getProductOffer,
+    rememberProduct,
+    getRecentlyViewed
+  };
+  window.PizzaroWishlist = {
+    getIds: () => [...wishlistIds],
+    toggle: toggleWishlist
   };
 })();
