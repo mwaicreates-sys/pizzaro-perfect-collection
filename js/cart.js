@@ -2,6 +2,7 @@
   'use strict';
 
   const STORAGE_KEY = 'pizzaro-perfect-cart-v1';
+  const NOT_SURE_SIZE = 'not-sure';
   const app = window.PizzaroApp;
   if (!app) throw new Error('PizzaroApp must load before the cart.');
 
@@ -32,7 +33,7 @@
         const product = item && typeof item.productId === 'string' && app.getProductById(item.productId);
         if (!product || !Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > 99) return false;
         const allowedSizes = product.availableSizes || [];
-        return (!item.size || !allowedSizes.length || allowedSizes.includes(item.size)) &&
+        return (!item.size || item.size === NOT_SURE_SIZE || !allowedSizes.length || allowedSizes.includes(item.size)) &&
           ['customName', 'customNumber', 'artworkName'].every(key =>
             item[key] === undefined || typeof item[key] === 'string'
           );
@@ -81,7 +82,7 @@
 
   function variantLabel(item, product) {
     return [
-      item.size && `${product.variantLabel || 'Size'} ${item.size}`,
+      item.size && `${product.variantLabel || 'Size'} ${item.size === NOT_SURE_SIZE ? 'Not sure — please advise' : item.size}`,
       item.customName && `Name ${item.customName}`,
       item.customNumber && `Number ${item.customNumber}`,
       item.artworkName && `Artwork file ${item.artworkName}`
@@ -105,7 +106,10 @@
         ? ` · line subtotal ${formatKes(product.price * item.quantity)}`
         : ' · price and line total to confirm';
       messageLines.push(`- ${product.name} × ${item.quantity} — ${unitPrice}${linePrice}`);
-      if (item.size) messageLines.push(`  - ${product.variantLabel || 'Size'}: ${item.size}`);
+      if (item.size) {
+        const selectedSize = item.size === NOT_SURE_SIZE ? 'Not sure — please advise' : item.size;
+        messageLines.push(`  - ${product.variantLabel || 'Size'}: ${selectedSize}`);
+      }
       if (item.customName) messageLines.push(`  - Name: ${item.customName}`);
       if (item.customNumber) messageLines.push(`  - Number: ${item.customNumber}`);
       if (item.artworkName) messageLines.push(`  - Artwork: ${item.artworkName} (send file separately)`);
@@ -174,6 +178,10 @@
             option.textContent = size;
             sizeSelect.appendChild(option);
           });
+          const unsure = document.createElement('option');
+          unsure.value = NOT_SURE_SIZE;
+          unsure.textContent = 'Not sure about size?';
+          sizeSelect.appendChild(unsure);
           sizeField.append(sizeLabel, sizeSelect);
           details.append(name, variant, sizeField);
         } else {
@@ -264,6 +272,11 @@
 
     const customName = card.querySelector('[data-custom-name]')?.value.trim() || '';
     const customNumber = card.querySelector('[data-custom-number]')?.value.trim() || '';
+    if (customNumber && !/^\d{1,2}$/.test(customNumber)) {
+      showFeedback('Enter a jersey number from 0 to 99.', true);
+      card.querySelector('[data-custom-number]')?.focus();
+      return;
+    }
     const artworkName = card.querySelector('[data-custom-artwork]')?.files?.[0]?.name || '';
     const requestedQuantity = Number(card.querySelector('[data-quantity]')?.value || 1);
     if (!Number.isInteger(requestedQuantity) || requestedQuantity < 1 || requestedQuantity > 99) {
@@ -346,7 +359,7 @@
     const index = Number(sizeSelect.dataset.cartSize);
     const item = items[index];
     const product = item && productFor(item);
-    if (!product || !product.availableSizes?.includes(sizeSelect.value)) return;
+    if (!product || (sizeSelect.value !== NOT_SURE_SIZE && !product.availableSizes?.includes(sizeSelect.value))) return;
     item.size = sizeSelect.value;
     saveCart();
     setStatus(`${product.variantLabel || 'Size'} saved for ${product.name}.`, false);
@@ -359,7 +372,7 @@
       setStatus('Add a product to your cart before preparing an order enquiry.', true);
     } else if (hasItemsMissingSizes()) {
       event.preventDefault();
-      setStatus('Choose a size or age for every item before ordering.', true);
+      setStatus('Choose a size or age, or select “Not sure about size?”, for every item before ordering.', true);
       document.querySelector('[data-cart-size]')?.focus();
     }
   });

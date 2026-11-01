@@ -94,7 +94,10 @@
       : 'Please share the current price.';
     const optionLabel = product.variantLabel || 'Size';
     const lines = [`Hi ${CONFIG.brand.name}, I'm interested in ${product.name}:`];
-    if (variants?.size) lines.push(`- ${optionLabel}: ${variants.size}`);
+    if (variants?.size) {
+      const selectedSize = variants.size === 'not-sure' ? 'Not sure — please advise' : variants.size;
+      lines.push(`- ${optionLabel}: ${selectedSize}`);
+    }
     lines.push(`- ${price}`);
     if (customisation?.name) lines.push(`- Name: ${customisation.name}`);
     if (customisation?.number) lines.push(`- Number: ${customisation.number}`);
@@ -176,6 +179,12 @@
       option.textContent = choice;
       select.appendChild(option);
     });
+    if (key === 'size') {
+      const unsure = document.createElement('option');
+      unsure.value = 'not-sure';
+      unsure.textContent = 'Not sure about size?';
+      select.appendChild(unsure);
+    }
     wrapper.append(caption, select);
     return wrapper;
   }
@@ -278,8 +287,10 @@
     const info = document.createElement('div');
     info.className = 'product-info';
     info.innerHTML = `
-      <h3 class="product-name"><a></a></h3>
-      <div class="product-meta"><p class="product-price">${formatPrice(product)}</p></div>
+      <div class="product-copy">
+        <h3 class="product-name"><a></a></h3>
+        <div class="product-meta"><p class="product-price">${formatPrice(product)}</p></div>
+      </div>
       <div class="product-action"></div>
     `;
     const titleLink = info.querySelector('.product-name a');
@@ -376,6 +387,47 @@
       optionsNote.textContent = 'Contact us to confirm available sizes.';
       variants.appendChild(optionsNote);
     }
+    let jerseyCustomisation;
+    if (product.category === 'football' && product.variantLabel !== 'Age') {
+      jerseyCustomisation = document.createElement('details');
+      jerseyCustomisation.className = 'jersey-customisation';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Add jersey customisation (optional)';
+      const fields = document.createElement('div');
+      fields.className = 'jersey-customisation-fields';
+      const nameLabel = document.createElement('label');
+      nameLabel.textContent = 'Name';
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.maxLength = 14;
+      nameInput.autocomplete = 'off';
+      nameInput.placeholder = 'Name on jersey';
+      nameInput.dataset.customName = '';
+      nameLabel.appendChild(nameInput);
+      const numberLabel = document.createElement('label');
+      numberLabel.textContent = 'Number';
+      const numberInput = document.createElement('input');
+      numberInput.type = 'text';
+      numberInput.inputMode = 'numeric';
+      numberInput.maxLength = 3;
+      numberInput.pattern = '[0-9]{1,2}';
+      numberInput.placeholder = '00';
+      numberInput.dataset.customNumber = '';
+      numberLabel.appendChild(numberInput);
+      const artworkLabel = document.createElement('label');
+      artworkLabel.className = 'jersey-customisation-artwork';
+      artworkLabel.textContent = 'Upload artwork (optional)';
+      const artworkInput = document.createElement('input');
+      artworkInput.type = 'file';
+      artworkInput.accept = 'image/*';
+      artworkInput.dataset.customArtwork = '';
+      artworkLabel.appendChild(artworkInput);
+      const note = document.createElement('p');
+      note.className = 'customizer-note';
+      note.textContent = 'Send any uploaded artwork separately in WhatsApp.';
+      fields.append(nameLabel, numberLabel, artworkLabel);
+      jerseyCustomisation.append(summary, fields, note);
+    }
     const availability = document.createElement('p');
     availability.className = 'product-detail-availability';
     availability.textContent = 'Availability: please confirm with us.';
@@ -426,20 +478,32 @@
     enquiry.addEventListener('click', event => {
       if (enquiry.getAttribute('aria-disabled') === 'true') event.preventDefault();
     });
-    variants.querySelectorAll('[data-variant]').forEach(select => {
-      select.addEventListener('change', () => {
-        const selected = {};
-        variants.querySelectorAll('[data-variant]').forEach(option => {
-          selected[option.dataset.variant] = option.value;
-        });
-        const hasRequiredSelection = !product.availableSizes?.length || Boolean(selected.size);
-        enquiry.href = hasRequiredSelection ? getWhatsAppLinkForProduct(product, selected) : '#';
-        enquiry.setAttribute('aria-disabled', String(!hasRequiredSelection));
-        enquiry.classList.toggle('is-disabled', !hasRequiredSelection);
+    const updateProductEnquiry = () => {
+      const selected = {};
+      variants.querySelectorAll('[data-variant]').forEach(option => {
+        selected[option.dataset.variant] = option.value;
       });
+      const hasRequiredSelection = !product.availableSizes?.length || Boolean(selected.size);
+      const customisation = jerseyCustomisation ? {
+        name: jerseyCustomisation.querySelector('[data-custom-name]').value.trim(),
+        number: jerseyCustomisation.querySelector('[data-custom-number]').value.trim(),
+        artwork: jerseyCustomisation.querySelector('[data-custom-artwork]').files?.[0]?.name || ''
+      } : undefined;
+      enquiry.href = hasRequiredSelection
+        ? getWhatsAppLinkForProduct(product, selected, customisation)
+        : '#';
+      enquiry.setAttribute('aria-disabled', String(!hasRequiredSelection));
+      enquiry.classList.toggle('is-disabled', !hasRequiredSelection);
+    };
+    variants.querySelectorAll('[data-variant]').forEach(select => {
+      select.addEventListener('change', updateProductEnquiry);
     });
+    jerseyCustomisation?.addEventListener('input', updateProductEnquiry);
+    jerseyCustomisation?.addEventListener('change', updateProductEnquiry);
     actions.append(quantity, addButton, wishlistButton, shareButton, enquiry);
-    info.append(eyebrow, title, team, price, variants, availability, description);
+    info.append(eyebrow, title, team, price, variants);
+    if (jerseyCustomisation) info.appendChild(jerseyCustomisation);
+    info.append(availability, description);
     info.append(feedback, shareStatus, actions);
     container.dataset.productId = product.id;
     container.append(imageFrame, info);
@@ -865,6 +929,7 @@
     const indicators = [...dots.querySelectorAll('button')];
     let pointerInside = false;
     let keyboardInside = false;
+    let touchStart;
 
     function showSlide(index) {
       activeIndex = (index + slides.length) % slides.length;
@@ -885,7 +950,7 @@
     function syncAutoplay() {
       stopAutoplay();
       if (reducedMotion.matches || pointerInside || keyboardInside || document.hidden) return;
-      autoplay = window.setInterval(() => showSlide(activeIndex + 1), 7000);
+      autoplay = window.setInterval(() => showSlide(activeIndex + 1), 3750);
     }
 
     previous.addEventListener('click', () => {
@@ -905,6 +970,22 @@
         syncAutoplay();
       }
     });
+    carousel.addEventListener('touchstart', event => {
+      const touch = event.changedTouches[0];
+      touchStart = { x: touch.clientX, y: touch.clientY };
+    }, { passive: true });
+    carousel.addEventListener('touchend', event => {
+      if (!touchStart) return;
+      const touch = event.changedTouches[0];
+      const horizontalDistance = touch.clientX - touchStart.x;
+      const verticalDistance = touch.clientY - touchStart.y;
+      touchStart = undefined;
+      if (Math.abs(horizontalDistance) < 40 || Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) return;
+      event.preventDefault();
+      showSlide(activeIndex + (horizontalDistance < 0 ? 1 : -1));
+      syncAutoplay();
+    }, { passive: false });
+    carousel.addEventListener('touchcancel', () => { touchStart = undefined; }, { passive: true });
     reducedMotion.addEventListener('change', syncAutoplay);
     document.addEventListener('visibilitychange', syncAutoplay);
 

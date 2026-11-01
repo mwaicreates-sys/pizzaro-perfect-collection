@@ -206,21 +206,21 @@ const INVENTORY = [
 ];
 
 INVENTORY.filter(product => product.category === 'football').forEach(product => {
-  const baseName = product.name.replace(/ Football Jersey$/, ' Jersey');
+  const baseName = product.name.replace(/ Football Jersey$/, '');
   product.name = `${baseName} (Player Version)`;
-  product.description = product.name;
+  product.description = `${product.description} 2026/27 season.`;
   product.variantLabel = 'Size';
   product.price = 1600;
   product.priceVerified = true;
   product.availableSizes = JERSEY_SIZES;
   product.version = 'Player';
-  product.details = `${product.name}. Choose a size before ordering.`;
+  product.details = `${product.description} Choose a size before ordering.`;
   INVENTORY.push({
     ...product,
     id: `${product.id}-fan`,
     name: `${baseName} (Fan Version)`,
-    description: `${baseName} (Fan Version)`,
-    details: `${baseName} fan version. Choose a size before ordering.`,
+    description: `${baseName} (Fan Version), 2026/27 season.`,
+    details: `${baseName} (Fan Version), 2026/27 season. Choose a size before ordering.`,
     price: 1300,
     originalPrice: undefined,
     version: 'Fan',
@@ -273,9 +273,29 @@ SUPPLIED_PRODUCTS.forEach(([id, name, category, image, details = {}]) => {
   const isShortSleeveJersey = category === 'football' && !isKidsKit && !isLongSleeve;
   const price = isPolo ? 500 : isShortSleeveJersey ? 1600 : details.price ?? null;
   const priceVerified = isPolo || isShortSleeveJersey || details.priceVerified === true;
-  const productName = isShortSleeveJersey ? `${name} (Player Version)` : name;
+  const kitMode = /\b(home|away|third|3rd)\b/i.exec(name)?.[1] || (isKidsKit ? 'Home' : '');
+  const normalizedMode = kitMode.toLowerCase() === '3rd' ? 'Third' :
+    kitMode ? `${kitMode[0].toUpperCase()}${kitMode.slice(1).toLowerCase()}` : '';
+  const nameQualifiers = [];
+  if (isKidsKit) nameQualifiers.push('Kids Kit');
+  if (isLongSleeve) nameQualifiers.push('Long Sleeve');
+  if (/badge/i.test(name)) nameQualifiers.push('CWC Badge');
+  if (isShortSleeveJersey) nameQualifiers.push('Player Version');
+  const nameSuffix = nameQualifiers.map(qualifier => ` (${qualifier})`).join('');
+  const titleBase = category === 'football'
+    ? `${details.team || ''} ${normalizedMode}${nameSuffix}`.trim()
+    : name;
+  const productName = titleBase;
   const productSizes = details.availableSizes ||
     (category === 'football' ? JERSEY_SIZES : category === 'caps' ? CAP_SIZES : APPAREL_SIZES);
+  const description = category === 'football'
+    ? `${titleBase} — 2026/27 season.`
+    : titleBase;
+  const detailText = details.details ||
+    `${productName}. ${priceVerified ? `Listed at KSh ${price.toLocaleString()}.` : 'Contact us to confirm available sizes and price.'}`;
+  const seasonalDetails = category === 'football' && !detailText.includes('2026/27')
+    ? `${detailText} 2026/27 season.`
+    : detailText;
   const productDetails = {
     ...details,
     variantLabel: details.variantLabel || 'Size',
@@ -285,8 +305,7 @@ SUPPLIED_PRODUCTS.forEach(([id, name, category, image, details = {}]) => {
     id,
     name: productName,
     category,
-    description: productName,
-    details: details.details || `${productName}. ${priceVerified ? `Listed at KSh ${price.toLocaleString()}.` : 'Contact us to confirm available sizes and price.'}`,
+    description,
     price,
     priceVerified,
     images: [image],
@@ -294,15 +313,16 @@ SUPPLIED_PRODUCTS.forEach(([id, name, category, image, details = {}]) => {
     featured: false,
     newArrival: ['arsenal-home', 'manchester-city-home', 'polo-plain-orange', 'cap-red', 'tshirt-black'].includes(id),
     ...productDetails,
+    details: seasonalDetails,
     ...(isShortSleeveJersey ? { version: 'Player' } : {})
   });
   if (isShortSleeveJersey) {
     INVENTORY.push({
       ...INVENTORY[INVENTORY.length - 1],
       id: `${id}-fan`,
-      name: `${name} (Fan Version)`,
-      description: `${name} (Fan Version)`,
-      details: `${name} fan version. Choose a size before ordering.`,
+      name: `${titleBase.replace(/ \(Player Version\)$/, '')} (Fan Version)`,
+      description: `${titleBase.replace(/ \(Player Version\)$/, '')} (Fan Version) — 2026/27 season.`,
+      details: `${titleBase.replace(/ \(Player Version\)$/, '')} (Fan Version). 2026/27 season. Choose a size before ordering.`,
       price: 1300,
       originalPrice: undefined,
       version: 'Fan',
